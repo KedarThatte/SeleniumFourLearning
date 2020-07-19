@@ -1,0 +1,13 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name = "EdgeChromium Browser Suite" preserve-order="true" >
+
+    <parameter name = "browser" value = "Edge"/>
+
+    <test name = "Normal User Flow Test">
+        <classes>
+            <class name ="org.seleniumfour.TestOne"/>
+        </classes>
+    </test>
+
+</suite>
