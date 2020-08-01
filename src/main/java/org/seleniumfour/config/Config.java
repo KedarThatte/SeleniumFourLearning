@@ -1,5 +1,7 @@
 package org.seleniumfour.config;
 
+import io.qameta.allure.Description;
+import io.qameta.allure.Step;
 import org.testng.annotations.BeforeSuite;
 
 import java.io.IOException;
@@ -69,6 +71,8 @@ public class Config {
     }*/
 
     @BeforeSuite
+    @Step
+    @Description("Loads Test Data for a Suite")
     public void loadConfig() throws IOException {
         config= new Properties();
         config.load(Config.class.getClassLoader().getResourceAsStream("config.properties"));

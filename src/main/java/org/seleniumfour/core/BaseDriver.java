@@ -1,5 +1,9 @@
 package org.seleniumfour.core;
 
+import io.qameta.allure.Description;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
+import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeOptions;
@@ -9,6 +13,7 @@ import org.openqa.selenium.opera.OperaOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariOptions;
 import org.seleniumfour.config.Config;
+import org.seleniumfour.pageclasses.NavigationPane;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -40,6 +45,9 @@ public class BaseDriver extends Config {
 
     @BeforeClass
     @Parameters({"browser"})
+    @Severity(SeverityLevel.CRITICAL)
+    @Step
+    @Description("Opens the AUT")
     public RemoteWebDriver launchApplication(String browser) throws IOException {
         System.out.println(config.getProperty("usersite"));
         System.out.println(config.getProperty("adminsite"));
@@ -53,13 +61,16 @@ public class BaseDriver extends Config {
             options.setCapability("browser","chrome");
             options.setCapability("acceptSslCerts", "true");
             options.addArguments("chrome.switches", "--disable-extensions --disable-extensions-file-access-check --disable-extensions-http-throttling --disable-infobars --enable-automation --start-maximized");
-            //options.addArguments("--headless");
+            /*options.addArguments("--incognito");
+            options.addArguments("--headless");*/
             driver=new RemoteWebDriver(new URL(Node),options);
 
         }else if(browser.equalsIgnoreCase("firefox")){
             FirefoxOptions options= new FirefoxOptions();
             options.setCapability("browser","firefox");
-            //options.setHeadless(true);
+
+//            options.addArguments("inPrivate","true");
+//            options.setHeadless(true);
             options.setAcceptInsecureCerts(true);
             driver=new RemoteWebDriver(new URL(Node),options);
 
@@ -77,12 +88,17 @@ public class BaseDriver extends Config {
             options.setCapability("platform","MAC");
             driver=new RemoteWebDriver(new URL(Node),options);
 
-        }else if(browser.equalsIgnoreCase("edge")){
+        }else if(browser.equalsIgnoreCase("Edge")){
             EdgeOptions options = new EdgeOptions();
+            System.setProperty("java.net.useSystemProxies","true");
             options.setCapability("browser","MicrosoftEdge");
-            options.setCapability("browser_version","80.0.361.54");
+            options.setCapability("browser_version","84.0.522.50");
             options.setCapability("platform","WINDOWS");
             options.setCapability("resolution", "1920x1080");
+            /*options.setCapability("userChromium","true");
+            options.addArguments("-inprivate");
+            options.addArguments("headless");*/
+
             driver=new RemoteWebDriver(new URL(Node),options);
 
         }else if(browser.equalsIgnoreCase("ie")){
@@ -93,10 +109,11 @@ public class BaseDriver extends Config {
             driver=new RemoteWebDriver(new URL(Node),options);
         }
         setWebDriver(driver);
-        driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         driver.manage().window().maximize();
         driver.get(config.getProperty("auturl"));
-        Assert.assertEquals(driver.getTitle(),"Pi-hole Admin Console");
+        NavigationPane navigationPane = new NavigationPane(driver);
+        Assert.assertTrue(navigationPane.navigationPaneOpen());
         saveTextLog(driver.getCurrentUrl());
         parentwindowhandle=driver.getWindowHandle();
         System.out.println("AUT is Open in "+browser+" browser");
@@ -104,7 +121,7 @@ public class BaseDriver extends Config {
     }
     @AfterClass
     public void tearDown(){
-        driver.findElement(By.xpath(".//span[text()='Logout']")).click();
+        /*driver.findElement(By.xpath(".//span[text()='Logout']")).click();*/
         driver.findElement(By.xpath(".//span[text()='Login']")).isDisplayed();
         //driver.close();
         driver.quit();
